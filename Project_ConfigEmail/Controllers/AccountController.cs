@@ -168,7 +168,7 @@ namespace Project_ConfigEmail.Controllers
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
 
-                    string callbackUrlSendMail = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account");
+                    //string callbackUrlSendMail = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account");
 
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
@@ -238,6 +238,7 @@ namespace Project_ConfigEmail.Controllers
             // If we got this far, something failed, redisplay form
             return View(model);
         }
+
 
         //
         // GET: /Account/ForgotPasswordConfirmation
