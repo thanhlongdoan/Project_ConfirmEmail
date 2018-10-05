@@ -175,7 +175,7 @@ namespace Project_ConfigEmail.Controllers
 
                     string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Vui lòng nhấn vào <a href=\"" + callbackUrl + "\">đây</a> để xác nhận tài khoản của bạn");
+                    await UserManager.SendEmailAsync(user.Id, "Xác nhận tài khoản", "Vui lòng nhấn vào <a href=\"" + callbackUrl + "\">đây</a> để xác nhận tài khoản của bạn");
 
                     ViewBag.Message = "Kiểm tra email và xác nhận tài khoản"
                          + "trước khi đăng nhập tiếp tục.";
