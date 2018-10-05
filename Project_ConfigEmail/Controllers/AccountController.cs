@@ -74,6 +74,15 @@ namespace Project_ConfigEmail.Controllers
             }
 
             // This doesn't count login failures towards account lockout
+            var user = await UserManager.FindByNameAsync(model.Email);
+            if (user != null)
+            {
+                if (!await UserManager.IsEmailConfirmedAsync(user.Id))
+                {
+                    ViewBag.errorMessage = "Bạn phải xác nhận email để tiếp tục đăng nhập";
+                    return View("Error");
+                }
+            }
             // To enable password failures to trigger account lockout, change to shouldLockout: true
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
@@ -156,14 +165,18 @@ namespace Project_ConfigEmail.Controllers
                 if (result.Succeeded)
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
-                    
+
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
-                    // string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
-                    // var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
-                    // await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+                    string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
+                    var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Vui lòng nhấn vào <a href=\"" + callbackUrl + "\">đây</a> để xác nhận tài khoản của bạn");
 
-                    return RedirectToAction("Index", "Home");
+                    ViewBag.Message = "Kiểm tra email và xác nhận tài khoản"
+                         + "trước khi đăng nhập tiếp tục.";
+
+                    return View("Info");
+
                 }
                 AddErrors(result);
             }
