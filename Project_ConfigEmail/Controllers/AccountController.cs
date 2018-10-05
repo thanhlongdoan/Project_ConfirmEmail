@@ -79,6 +79,8 @@ namespace Project_ConfigEmail.Controllers
             {
                 if (!await UserManager.IsEmailConfirmedAsync(user.Id))
                 {
+                    string callbackUrlSendMail = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account");
+
                     ViewBag.errorMessage = "Bạn phải xác nhận email để tiếp tục đăng nhập";
                     return View("Error");
                 }
@@ -166,8 +168,11 @@ namespace Project_ConfigEmail.Controllers
                 {
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
 
+                    string callbackUrlSendMail = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account");
+
                     // For more information on how to enable account confirmation and password reset please visit https://go.microsoft.com/fwlink/?LinkID=320771
                     // Send an email with this link
+
                     string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
                     await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Vui lòng nhấn vào <a href=\"" + callbackUrl + "\">đây</a> để xác nhận tài khoản của bạn");
@@ -434,6 +439,16 @@ namespace Project_ConfigEmail.Controllers
             }
 
             base.Dispose(disposing);
+        }
+        private async Task<string> SendEmailConfirmationTokenAsync(string userID, string subject)
+        {
+            string code = await UserManager.GenerateEmailConfirmationTokenAsync(userID);
+            var callbackUrl = Url.Action("ConfirmEmail", "Account",
+               new { userId = userID, code = code }, protocol: Request.Url.Scheme);
+            await UserManager.SendEmailAsync(userID, subject,
+               "Please confirm your account by clicking <a href=\"" + callbackUrl + "\">here</a>");
+
+            return callbackUrl;
         }
 
         #region Helpers
