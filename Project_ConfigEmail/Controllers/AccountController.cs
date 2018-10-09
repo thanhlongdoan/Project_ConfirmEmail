@@ -74,9 +74,11 @@ namespace Project_ConfigEmail.Controllers
             }
 
             // This doesn't count login failures towards account lockout
+            //Tìm kiếm tài khoản có tồn tại trong CSDL
             var user = await UserManager.FindByNameAsync(model.Email);
             if (user != null)
             {
+                //Kiểm trả tài khoản đã xác thực hay chưa?
                 if (!await UserManager.IsEmailConfirmedAsync(user.Id))
                 {
                     string callbackUrlSendMail = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account");
@@ -86,13 +88,17 @@ namespace Project_ConfigEmail.Controllers
                 }
             }
             // To enable password failures to trigger account lockout, change to shouldLockout: true
+            //Đăng nhập vào website
             var result = await SignInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, shouldLockout: false);
             switch (result)
             {
+                //Đăng nhập thành công
                 case SignInStatus.Success:
                     return RedirectToLocal(returnUrl);
+                //Tài khoản bị khóa
                 case SignInStatus.LockedOut:
                     return View("Lockout");
+                //Đăng nhập thông qua bước xác nhận
                 case SignInStatus.RequiresVerification:
                     return RedirectToAction("SendCode", new { ReturnUrl = returnUrl, RememberMe = model.RememberMe });
                 case SignInStatus.Failure:
@@ -160,12 +166,17 @@ namespace Project_ConfigEmail.Controllers
         [ValidateAntiForgeryToken]
         public async Task<ActionResult> Register(RegisterViewModel model)
         {
+            //Kiểm tra thông tin nhập vào có hợp lệ hay không
             if (ModelState.IsValid)
             {
+                //Tạo một đối tượng User mới
                 var user = new ApplicationUser { UserName = model.Email, Email = model.Email };
+                //Tạo một User mới
                 var result = await UserManager.CreateAsync(user, model.Password);
+                //Kiểm tra tạo User mới có thành công hay không
                 if (result.Succeeded)
                 {
+                    //Đăng nhập vào website
                     await SignInManager.SignInAsync(user, isPersistent:false, rememberBrowser:false);
                     
 
@@ -174,6 +185,7 @@ namespace Project_ConfigEmail.Controllers
 
                     string code = await UserManager.GenerateEmailConfirmationTokenAsync(user.Id);
                     var callbackUrl = Url.Action("ConfirmEmail", "Account", new { userId = user.Id, code = code }, protocol: Request.Url.Scheme);
+                    //??????
                     await UserManager.SendEmailAsync(user.Id, "Confirm your account", "Vui lòng nhấn vào <a href=\"" + callbackUrl + "\">đây</a> để xác nhận tài khoản của bạn");
 
                     ViewBag.Message = "Kiểm tra email và xác nhận tài khoản"
