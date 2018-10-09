@@ -81,7 +81,7 @@ namespace Project_ConfigEmail.Controllers
                 //Kiểm trả tài khoản đã xác thực hay chưa?
                 if (!await UserManager.IsEmailConfirmedAsync(user.Id))
                 {
-                    string callbackUrlSendMail = await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account");
+                    await SendEmailConfirmationTokenAsync(user.Id, "Confirm your account");
 
                     ViewBag.errorMessage = "Bạn phải xác nhận email để tiếp tục đăng nhập";
                     return View("Error");
